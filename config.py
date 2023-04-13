@@ -3,7 +3,7 @@ from pathlib import Path
 
 class Config:
     # number of processes used for parallel computations
-    num_proc = 8
+    num_proc = 2
     n_estimators = 5000
     max_depth = 3
     l2_reg = 1e-3
