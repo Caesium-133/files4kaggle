@@ -9,7 +9,7 @@ class Config:
     l2_reg = 1e-3
     save_models = True
     merge_train_dev = True
-    use_gpu = False
+    use_gpu = True
     gpu_device_id = '0'
 
     dataset_path = Path('/kaggle/input/asvpoof-2019-dataset')
