@@ -126,12 +126,6 @@ class ASVDataset(Dataset):
 
     def _parse_line(self, line):
         tokens = line.strip().split(' ')
-        if self.is_eval:
-            return ASVFile(speaker_id='',
-                file_name=tokens[0],
-                path=os.path.join(self.files_dir, tokens[0] + '.flac'),
-                sys_id=0,
-                key=0)
         return ASVFile(speaker_id=tokens[0],
             file_name=tokens[1],
             path=os.path.join(self.files_dir, tokens[1] + '.flac'),
