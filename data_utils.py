@@ -1,3 +1,13 @@
+import torch
+import collections
+import os
+import soundfile as sf
+import librosa
+from torch.utils.data import DataLoader, Dataset
+import numpy as np
+from joblib import Parallel, delayed
+import h5py
+
 LOGICAL_DATA_ROOT = r'/kaggle/input/asvpoof-2019-dataset/LA/LA' #r'/kaggle/input/anti-spoof/LA' 
 PHISYCAL_DATA_ROOT = r'/kaggle/input/asvpoof-2019-dataset/PA/PA'
 
