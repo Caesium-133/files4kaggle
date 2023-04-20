@@ -1,19 +1,5 @@
-"""
-    Author: Moustafa Alzantot (malzantot@ucla.edu)
-    All rights reserved.
-"""
-import torch
-import collections
-import os
-import soundfile as sf
-import librosa
-from torch.utils.data import DataLoader, Dataset
-import numpy as np
-from joblib import Parallel, delayed
-import h5py
-
-LOGICAL_DATA_ROOT = '/content/Dataset/LA/LA'
-PHISYCAL_DATA_ROOT = '/content/Dataset/PA/PA'
+LOGICAL_DATA_ROOT = r'/kaggle/input/asvpoof-2019-dataset/LA/LA' #r'/kaggle/input/anti-spoof/LA' 
+PHISYCAL_DATA_ROOT = r'/kaggle/input/asvpoof-2019-dataset/PA/PA'
 
 ASVFile = collections.namedtuple('ASVFile',
     ['speaker_id', 'file_name', 'path', 'sys_id', 'key'])
@@ -37,48 +23,8 @@ class ASVDataset(Dataset):
         self.is_logical = is_logical
         self.prefix = 'ASVspoof2019_{}'.format(track)
         v1_suffix = ''
-        # if is_eval and track == 'PA':
-            # v1_suffix='_v1'
-        # self.sysid_dict = {
-            # '-': 0,  # bonafide speech
-            # 'SS_1': 1, # Wavenet vocoder
-            # 'SS_2': 2, # Conventional vocoder WORLD
-            # 'SS_4': 3, # Conventional vocoder MERLIN
-            # 'US_1': 4, # Unit selection system MaryTTS
-            # 'VC_1': 5, # Voice conversion using neural networks
-            # 'VC_4': 6, # transform function-based voice conversion
-            ##For PA:
-            # 'AA':7,
-            # 'AB':8,
-            # 'AC':9,
-            # 'BA':10,
-            # 'BB':11,
-            # 'BC':12,
-            # 'CA':13,
-            # 'CB':14,
-            # 'CC': 15
-        # }
         self.is_eval = is_eval
-        if self.is_eval :
-            self.sysid_dict = {
-            '-': 0,  # bonafide speech
-            'A07': 1, 
-            'A08': 2, 
-            'A09': 3, 
-            'A10': 4, 
-            'A11': 5, 
-            'A12': 6,
-            'A13': 7, 
-            'A14': 8, 
-            'A15': 9, 
-            'A16': 10, 
-            'A17': 11, 
-            'A18': 12,
-            'A19': 13,
-        }
-        else:
-            #train/dev部分
-            self.sysid_dict = {
+        self.sysid_dict = {
             '-': 0,  # bonafide speech
             'A01': 1, 
             'A02': 2, 
@@ -86,13 +32,36 @@ class ASVDataset(Dataset):
             'A04': 4, 
             'A05': 5, 
             'A06': 6,
+            'A07': 7, 
+            'A08': 8, 
+            'A09': 9, 
+            'A10': 10, 
+            'A11': 11, 
+            'A12': 12,
+            'A13': 13, 
+            'A14': 14, 
+            'A15': 15, 
+            'A16': 16, 
+            'A17': 17, 
+            'A18': 18,
+            'A19': 19,
+            'AA':20,
+            'AB':21,
+            'AC':22,
+            'BA':23,
+            'BB':24,
+            'BC':25,
+            'CA':26,
+            'CB':27,
+            'CC':28
+            
         }
         self.sysid_dict_inv = {v:k for k,v in self.sysid_dict.items()}
         self.data_root = data_root
         self.dset_name = 'eval' if is_eval else 'train' if is_train else 'dev'
         self.protocols_fname = 'eval_{}.trl'.format(eval_part) if is_eval else 'train.trn' if is_train else 'dev.trl'
         self.protocols_dir = os.path.join(self.data_root,
-            '{}_protocols/'.format(self.prefix))
+            '{}_cm_protocols/'.format(self.prefix))
         self.files_dir = os.path.join(self.data_root, '{}_{}'.format(
             self.prefix, self.dset_name )+v1_suffix, 'flac')
         self.protocols_fname = os.path.join(self.protocols_dir,
@@ -123,8 +92,8 @@ class ASVDataset(Dataset):
             if self.transform:
                 # self.data_x = list(map(self.transform, self.data_x)) 
                 self.data_x = Parallel(n_jobs=4, prefer='threads')(delayed(self.transform)(x) for x in self.data_x)
-            torch.save((self.data_x, self.data_y, self.data_sysid, self.files_meta), self.cache_fname)
-            print('Dataset saved to cache ', self.cache_fname)
+            #torch.save((self.data_x, self.data_y, self.data_sysid, self.files_meta), self.cache_fname)
+            #print('Dataset saved to cache ', self.cache_fname)
         if sample_size:
             select_idx = np.random.choice(len(self.files_meta), size=(sample_size,), replace=True).astype(np.int32)
             self.files_meta= [self.files_meta[x] for x in select_idx]
@@ -161,6 +130,7 @@ class ASVDataset(Dataset):
             key=int(tokens[4] == 'bonafide'))
 
     def parse_protocols_file(self, protocols_fname):
+        print(protocols_fname)
         lines = open(protocols_fname).readlines()
         files_meta = map(self._parse_line, lines)
         return list(files_meta)
@@ -188,11 +158,3 @@ class ASVDataset(Dataset):
         data_x = np.array(data_x)
         data_y = np.array(data_y)
         return data_x.astype(np.float32), data_y.astype(np.int64), sys_id
-
-
-# if __name__ == '__main__':
-#    train_loader = ASVDataset(LOGICAL_DATA_ROOT, is_train=True)
-#    assert len(train_loader) == 25380, 'Incorrect size of training set.'
-#    dev_loader = ASVDataset(LOGICAL_DATA_ROOT, is_train=False)
-#    assert len(dev_loader) == 24844, 'Incorrect size of dev set.'
-
