@@ -18,8 +18,7 @@ class ASVDataset(Dataset):
     """ Utility class to load  train/dev datatsets """
     def __init__(self, transform=None, 
         is_train=True, sample_size=None, 
-        is_logical=True, feature_name=None, is_eval=False,
-        eval_part=0):
+        is_logical=True, feature_name=None, is_eval=False):
         if is_logical:
             data_root = LOGICAL_DATA_ROOT
             track = 'LA'
@@ -69,17 +68,16 @@ class ASVDataset(Dataset):
         self.sysid_dict_inv = {v:k for k,v in self.sysid_dict.items()}
         self.data_root = data_root
         self.dset_name = 'eval' if is_eval else 'train' if is_train else 'dev'
-        self.protocols_fname = 'eval_{}.trl'.format(eval_part) if is_eval else 'train.trn' if is_train else 'dev.trl'
+        self.protocols_fname = 'eval.trl' if is_eval else 'train.trn' if is_train else 'dev.trl'
         self.protocols_dir = os.path.join(self.data_root,
             '{}_cm_protocols/'.format(self.prefix))
         self.files_dir = os.path.join(self.data_root, '{}_{}'.format(
             self.prefix, self.dset_name )+v1_suffix, 'flac')
         self.protocols_fname = os.path.join(self.protocols_dir,
             'ASVspoof2019.{}.cm.{}.txt'.format(track, self.protocols_fname))
-        self.cache_fname = 'cache_{}{}_{}_{}.npy'.format(self.dset_name,
-        '_part{}'.format(eval_part) if is_eval else '',track, feature_name)
-        self.cache_matlab_fname = 'cache_{}{}_{}_{}.mat'.format(
-            self.dset_name, '_part{}'.format(eval_part) if is_eval else '',
+        self.cache_fname = 'cache_{}_{}_{}.npy'.format(self.dset_name,track, feature_name)
+        self.cache_matlab_fname = 'cache_{}_{}_{}.mat'.format(
+            self.dset_name, 
              track, feature_name)
         self.transform = transform
         if os.path.exists(self.cache_fname):
