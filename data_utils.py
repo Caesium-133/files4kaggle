@@ -18,7 +18,8 @@ class ASVDataset(Dataset):
     """ Utility class to load  train/dev datatsets """
     def __init__(self, transform=None, 
         is_train=True, sample_size=None, 
-        is_logical=True, feature_name=None, is_eval=False):
+        is_logical=True, feature_name=None, is_eval=False,
+        eval_part=0):
         if is_logical:
             data_root = LOGICAL_DATA_ROOT
             track = 'LA'
